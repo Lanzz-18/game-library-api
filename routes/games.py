@@ -12,6 +12,14 @@ def get_games():
         game["_id"] = str(game["_id"])
     return games
 
+@router.get("/games/{id}")
+def get_game(id: str):
+    game = games_collection.find_one({"_id": ObjectId(id)})
+    if not game:
+        return {"message": "Game not found"}
+    game["_id"] = str(game["id"])
+    return game
+
 @router.post("/games")
 def add_game(game: Game):
     new_game = dict(game)

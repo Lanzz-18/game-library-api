@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from models import Game
 from database import games_collection
 from bson import ObjectId
@@ -16,7 +16,7 @@ def get_games():
 def get_game(id: str):
     game = games_collection.find_one({"_id": ObjectId(id)})
     if not game:
-        return {"message": "Game not found"}
+        raise HTTPException(status=404, descriptionn="Game not found")
     game["_id"] = str(game["_id"])
     return game
 
@@ -29,10 +29,17 @@ def add_game(game: Game):
 
 @router.delete("/games/{id}")
 def delete_game(id: str):
-    games_collection.delete_one({"_id": ObjectId(id)})
+    result = games_collection.delete_one({"_id": ObjectId(id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status=404, descriptionn="Game not found")
     return {"message": "game deleted"}
 
 @router.put("/games/{id}")
 def update_game(id: str, game: Game):
-    games_collection.update_one({"_id": ObjectId(id)}, {"$set": dict(game)})
+    result = games_collection.update_one(
+        {"_id": ObjectId(id)}, 
+        {"$set": dict(game)}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status=404, descriptionn="Game not found")
     return {"message":"Game updated"}

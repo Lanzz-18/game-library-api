@@ -17,7 +17,7 @@ def get_game(id: str):
     game = games_collection.find_one({"_id": ObjectId(id)})
     if not game:
         return {"message": "Game not found"}
-    game["_id"] = str(game["id"])
+    game["_id"] = str(game["_id"])
     return game
 
 @router.post("/games")
